@@ -91,7 +91,7 @@ CREATE TABLE sales_items (
 
 $host = "localhost"; // Change if necessary
 $dbname = "Time_Emporium_DB"; // Ensure this matches your actual database name
-$username = ""; // Default XAMPP/MAMP username
+$username = "root"; // Default XAMPP/MAMP username
 $password = ""; // Default XAMPP password (empty)
 
 // Establish PDO connection
