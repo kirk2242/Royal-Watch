@@ -75,7 +75,7 @@ $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 </div>
                 <h3>Smart Watch</h3>
                 <p>Elegant watches designed to complement formal attire with refined sophistication.</p>
-                <a href="../Codex/auth/login.php" class="collection-link">View Collection →</a>
+                <a href="auth/login.php" class="collection-link">View Collection →</a>
             </div>
         </div>
     </section>
