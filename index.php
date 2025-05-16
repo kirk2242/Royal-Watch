@@ -29,7 +29,7 @@ $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <a href="#collections">Collections</a>
             <a href="#brands">Brands</a>
             <a href="#featured-products">Featured Products</a>
-            <a href="../Codex/auth/login.php" class="cta-button" style="background-color: #d4af37;">Login</a>
+            <a href="auth/login.php" class="cta-button" style="background-color: #d4af37;">Login</a>
         </nav>
     </header>
 
