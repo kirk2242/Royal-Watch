@@ -40,7 +40,7 @@ $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <p>Discover our curated collection of luxury timepieces from the world's finest watchmakers. Each watch tells a story of craftsmanship and heritage.</p>
             <div class="hero-buttons">
                 <a href="#collections" class="cta-button">Explore Collections</a>
-                <a href="../Codex/auth/login.php" class="secondary-button">New Arrivals</a>
+                <a href="auth/login.php" class="secondary-button">New Arrivals</a>
             </div>
         </div>
         <div class="hero-image"></div>
@@ -59,7 +59,7 @@ $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 </div>
                 <h3>Digital</h3>
                 <p>Exquisite watches from prestigious brands that define opulence and status.</p>
-                <a href="../Codex/auth/login.php" class="collection-link">View Collection →</a>
+                <a href="auth/login.php" class="collection-link">View Collection →</a>
             </div>
             <div class="collection-card">
                 <div class="collection-icon">
@@ -67,7 +67,7 @@ $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 </div>
                 <h3>Analog</h3>
                 <p>Robust timepieces built for adventure with advanced functionality.</p>
-                <a href="../Codex/auth/login.php" class="collection-link">View Collection →</a>
+                <a href="auth/login.php" class="collection-link">View Collection →</a>
             </div>
             <div class="collection-card">
                 <div class="collection-icon">
@@ -117,7 +117,7 @@ $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 </div>
                 <div class="watch-price">
                     <span class="price">P12,499</span>
-                    <a href="../Codex/auth/login.php" class="cta-button"><i class="fas fa-shopping-cart"></i> Pre-Order</a>
+                    <a href="auth/login.php" class="cta-button"><i class="fas fa-shopping-cart"></i> Pre-Order</a>
                 </div>
             </div>
         </div>
@@ -151,7 +151,7 @@ $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                     <span class="price">₱<?= number_format($product['price'], 2) ?></span>
                                     <p class="stock-info">Stock: <?= htmlspecialchars($product['stock']) ?></p>
                                 </div>
-                                <a href="../Codex/auth/login.php" class="cta-button add-to-cart"><i class="fas fa-shopping-cart"></i> Add to Cart</a>
+                                <a href="auth/login.php" class="cta-button add-to-cart"><i class="fas fa-shopping-cart"></i> Add to Cart</a>
                             </div>
                         </div>
                     <?php endforeach; ?>
@@ -161,7 +161,7 @@ $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <?php endif; ?>
             
             <div class="view-all-container">
-                <a href="../Codex/auth/login.php" class="view-all-button">View All Products</a>
+                <a href="auth/login.php" class="view-all-button">View All Products</a>
             </div>
         </div>
     </section>
@@ -181,9 +181,9 @@ $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <div class="footer-column">
                 <h3>Shop</h3>
                 <ul class="footer-links">
-                    <li><a href="../Codex/auth/login.php">New Arrivals</a></li>
-                    <li><a href="../Codex/auth/login.php">Best Sellers</a></li>
-                    <li><a href="../Codex/auth/login.php">Limited Editions</a></li>
+                    <li><a href="auth/login.php">New Arrivals</a></li>
+                    <li><a href="auth/login.php">Best Sellers</a></li>
+                    <li><a href="auth/login.php">Limited Editions</a></li>
                 </ul>
             </div>
             <div class="footer-column">
