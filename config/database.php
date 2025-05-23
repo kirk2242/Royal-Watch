@@ -109,7 +109,6 @@ CREATE TABLE sales_items (
 
 
 
-
 // Establish PDO connection
 try {
     $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $username, $password);
