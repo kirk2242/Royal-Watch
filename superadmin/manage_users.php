@@ -13,24 +13,35 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'superadmin') {
 $search = isset($_GET['search']) ? trim($_GET['search']) : '';
 $roleFilter = isset($_GET['role']) ? $_GET['role'] : '';
 
-// Build the query based on filters
-$query = "SELECT * FROM users WHERE role != 'superadmin'";
+// Pagination setup
+$perPage = 10;
+$page = isset($_GET['page']) && is_numeric($_GET['page']) && $_GET['page'] > 0 ? (int)$_GET['page'] : 1;
+$offset = ($page - 1) * $perPage;
+
+// Build the WHERE clause and params
+$where = "role != 'superadmin'";
 $params = [];
 
 if (!empty($search)) {
-    $query .= " AND (username LIKE ? OR id LIKE ?)";
+    $where .= " AND (username LIKE ? OR id LIKE ?)";
     $params[] = "%$search%";
     $params[] = "%$search%";
 }
 
 if (!empty($roleFilter)) {
-    $query .= " AND role = ?";
+    $where .= " AND role = ?";
     $params[] = $roleFilter;
 }
 
-$query .= " ORDER BY role ASC, username ASC";
+// Count total filtered users for pagination
+$countQuery = "SELECT COUNT(*) FROM users WHERE $where";
+$countStmt = $pdo->prepare($countQuery);
+$countStmt->execute($params);
+$totalUsers = $countStmt->fetchColumn();
+$totalPages = max(1, ceil($totalUsers / $perPage));
 
-// Prepare and execute the query
+// Fetch users for current page
+$query = "SELECT * FROM users WHERE $where ORDER BY role ASC, username ASC LIMIT $perPage OFFSET $offset";
 $stmt = $pdo->prepare($query);
 $stmt->execute($params);
 $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -60,6 +71,9 @@ $roles = $roleStmt->fetchAll(PDO::FETCH_COLUMN);
                 <?php if (!empty($roleFilter)): ?>
                     <input type="hidden" name="role" value="<?= htmlspecialchars($roleFilter) ?>">
                 <?php endif; ?>
+                <?php if ($page > 1): ?>
+                    <input type="hidden" name="page" value="<?= $page ?>">
+                <?php endif; ?>
             </form>
         </div>
         
@@ -77,6 +91,7 @@ $roles = $roleStmt->fetchAll(PDO::FETCH_COLUMN);
         Showing <?= count($users) ?> user<?= count($users) !== 1 ? 's' : '' ?>
         <?= !empty($search) ? " matching \"" . htmlspecialchars($search) . "\"" : "" ?>
         <?= !empty($roleFilter) ? " with role \"" . ucfirst(htmlspecialchars($roleFilter)) . "\"" : "" ?>
+        (Page <?= $page ?> of <?= $totalPages ?>)
     </div>
     
     <?php if (count($users) > 0): ?>
@@ -114,15 +129,35 @@ $roles = $roleStmt->fetchAll(PDO::FETCH_COLUMN);
         </div>
     <?php endif; ?>
     
-    <!-- Pagination placeholder - implement if needed -->
-    <!--
+    <!-- Pagination controls -->
+    <?php if ($totalPages > 1): ?>
     <div class="pagination">
-        <a href="#" class="active">1</a>
-        <a href="#">2</a>
-        <a href="#">3</a>
-        <a href="#">Next</a>
+        <?php
+        // Build base URL for pagination links
+        $baseUrl = strtok($_SERVER["REQUEST_URI"], '?');
+        $queryParams = $_GET;
+        ?>
+        <?php if ($page > 1): ?>
+            <?php $queryParams['page'] = $page - 1; ?>
+            <a href="<?= htmlspecialchars($baseUrl . '?' . http_build_query($queryParams)) ?>">&laquo; Prev</a>
+        <?php endif; ?>
+        <?php
+        // Show up to 5 page links centered around current page
+        $start = max(1, $page - 2);
+        $end = min($totalPages, $page + 2);
+        if ($start > 1) echo '<span>...</span>';
+        for ($i = $start; $i <= $end; $i++):
+            $queryParams['page'] = $i;
+        ?>
+            <a href="<?= htmlspecialchars($baseUrl . '?' . http_build_query($queryParams)) ?>" class="<?= $i == $page ? 'active' : '' ?>"><?= $i ?></a>
+        <?php endfor; ?>
+        <?php if ($end < $totalPages) echo '<span>...</span>'; ?>
+        <?php if ($page < $totalPages): ?>
+            <?php $queryParams['page'] = $page + 1; ?>
+            <a href="<?= htmlspecialchars($baseUrl . '?' . http_build_query($queryParams)) ?>">Next &raquo;</a>
+        <?php endif; ?>
     </div>
-    -->
+    <?php endif; ?>
     
     <a href="dashboard_superadmin.php" class="btn back-btn">Back to Dashboard</a>
 </div>
@@ -149,6 +184,12 @@ document.getElementById('roleFilter').addEventListener('change', function() {
             searchForm.removeChild(roleInput);
         }
     }
+
+    // Reset to first page on filter change
+    let pageInput = searchForm.querySelector('input[name="page"]');
+    if (pageInput) {
+        searchForm.removeChild(pageInput);
+    }
     
     searchForm.submit();
 });
@@ -156,6 +197,11 @@ document.getElementById('roleFilter').addEventListener('change', function() {
 // Submit search on enter key
 document.querySelector('.search-box input').addEventListener('keypress', function(e) {
     if (e.key === 'Enter') {
+        // Reset to first page on search
+        let pageInput = document.querySelector('#searchForm input[name="page"]');
+        if (pageInput) {
+            pageInput.parentNode.removeChild(pageInput);
+        }
         document.getElementById('searchForm').submit();
     }
 });
@@ -163,4 +209,3 @@ document.querySelector('.search-box input').addEventListener('keypress', functio
 
 </body>
 </html>
-</qodoArtifact>
