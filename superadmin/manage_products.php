@@ -1,3 +1,4 @@
+
 <?php
 session_start();
 require '../config/database.php';
@@ -6,6 +7,16 @@ require '../config/database.php';
 if (!isset($_SESSION['role']) || ($_SESSION['role'] !== 'superadmin')) {
     header("Location: ../auth/login.php");
     exit();
+}
+
+// Helper function to truncate description to 10 words
+function truncate_words($text, $limit = 10) {
+    $words = preg_split('/\s+/', strip_tags($text));
+    if (count($words) <= $limit) {
+        return htmlspecialchars($text);
+    }
+    $truncated = array_slice($words, 0, $limit);
+    return htmlspecialchars(implode(' ', $truncated)) . '...';
 }
 
 // Search functionality
@@ -99,7 +110,7 @@ $categories = $category_stmt->fetchAll(PDO::FETCH_COLUMN);
             <th>Barcode</th>
             <th>Name</th>
             <th>Category</th>
-            <th>Description</th> <!-- Added Description Column -->
+            <th>Description</th>
             <th>Brand</th>
             <th>Gender</th>
             <th>Price</th>
@@ -120,7 +131,7 @@ $categories = $category_stmt->fetchAll(PDO::FETCH_COLUMN);
             <td><?= htmlspecialchars($product['barcode']); ?></td>
             <td><?= htmlspecialchars($product['name']); ?></td>
             <td><?= htmlspecialchars($product['category']); ?></td>
-            <td><?= htmlspecialchars($product['description']); ?></td> <!-- Display Description -->
+            <td><?= truncate_words($product['description'], 10); ?></td>
             <td><?= htmlspecialchars($product['brand']); ?></td>
             <td><?= htmlspecialchars($product['gender']); ?></td>
             <td>$<?= number_format($product['price'], 2); ?></td>
