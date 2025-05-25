@@ -3,9 +3,12 @@ session_start();
 
 if (isset($_GET['id'])) {
     $productId = $_GET['id'];
-    unset($_SESSION['cart'][$productId]);
+    if (isset($_SESSION['cart'][$productId])) {
+        unset($_SESSION['cart'][$productId]);
+    }
 }
 
-header("Location: checkout.php");
+// Redirect back to cart page
+header("Location: cart.php");
 exit();
 ?>
