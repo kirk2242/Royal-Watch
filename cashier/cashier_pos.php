@@ -69,21 +69,21 @@ $products = $productStmt->fetchAll(PDO::FETCH_ASSOC);
         </div>
 
         <div class="product-section">
-            <?php foreach ($products as $product): ?>
-                <div class="product-card" data-category="<?= htmlspecialchars($product['category']) ?>">
-                    <img src="<?= !empty($product['image']) ? '../uploads/' . $product['image'] : '../assets/images/no-image.jpg' ?>" alt="<?= htmlspecialchars($product['name']) ?>">
-                    <h4><?= htmlspecialchars($product['name']) ?></h4>
-                    <p>₱<?= number_format($product['price'], 2) ?> | Stock: <?= $product['stock'] ?></p>
-                    <p class="barcode-display">Barcode: <?= htmlspecialchars($product['barcode'] ?? 'N/A') ?></p>
-                    <button 
-                        onclick="addToCart(<?= $product['id'] ?>, '<?= htmlspecialchars($product['name']) ?>', <?= $product['price'] ?>, '<?= !empty($product['image']) ? '../uploads/' . $product['image'] : '../assets/images/no-image.jpg' ?>', <?= $product['stock'] ?>)"
-                        <?= $product['stock'] <= 0 ? 'disabled class="out-of-stock"' : '' ?>
-                    >
-                        <?= $product['stock'] > 0 ? '<i class="fas fa-cart-plus"></i> Add to Cart' : '<i class="fas fa-ban"></i> Out of Stock' ?>
-                    </button>
-                </div>
-            <?php endforeach; ?>
+    <?php foreach ($products as $product): ?>
+        <div class="product-card" data-category="<?= htmlspecialchars($product['category']) ?>">
+            <img src="<?= !empty($product['image']) ? '../uploads/' . $product['image'] : '../assets/images/no-image.jpg' ?>" alt="<?= htmlspecialchars($product['name']) ?>">
+            <h4><?= htmlspecialchars($product['name']) ?></h4>
+            <p>₱<?= number_format($product['price'], 2) ?> | Stock: <?= $product['stock'] ?></p>
+            <p class="barcode-display">Barcode: <?= htmlspecialchars($product['barcode'] ?? 'N/A') ?></p>
+            <button 
+                onclick="addToCart(<?= $product['id'] ?>, '<?= htmlspecialchars($product['name']) ?>', <?= $product['price'] ?>, '<?= !empty($product['image']) ? '../uploads/' . $product['image'] : '../assets/images/no-image.jpg' ?>', <?= $product['stock'] ?>)"
+                <?= $product['stock'] <= 0 ? 'disabled class="out-of-stock"' : '' ?>
+            >
+                <?= $product['stock'] > 0 ? '<i class="fas fa-cart-plus"></i> Add to Cart' : '<i class="fas fa-ban"></i> Out of Stock' ?>
+            </button>
         </div>
+    <?php endforeach; ?>
+</div>
 
         <div class="cart-section">
             <h3><i class="fas fa-shopping-cart"></i> Shopping Cart</h3>
