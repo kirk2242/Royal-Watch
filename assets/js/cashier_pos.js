@@ -307,8 +307,8 @@ function showReceipt(receipt) {
     const date = new Date(receipt.date).toLocaleString();
     let receiptHTML = `
         <div class="receipt-header">
-            <h4>Store Name</h4>
-            <p>123 Main Street, City</p>
+            <h4>Time Emporium</h4>
+            <p>CTU, Sabang, Danao</p>
             <p>${date}</p>
         </div>
         <div class="receipt-items">
