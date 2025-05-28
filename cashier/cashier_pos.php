@@ -141,6 +141,14 @@ $products = $productStmt->fetchAll(PDO::FETCH_ASSOC);
     </div>
 </div>
 
+<!-- Product Image Modal -->
+<div id="product-image-modal" class="modal" style="display:none;">
+    <div class="modal-content" style="max-width:500px; padding:0;">
+        <span id="close-image-modal" style="position:absolute;top:10px;right:20px;font-size:2rem;cursor:pointer;color:#333;">&times;</span>
+        <img id="modal-product-image" src="" alt="Product Image" style="width:100%;display:block;border-radius:8px;">
+    </div>
+</div>
+
 <!-- Pass PHP products array to JS -->
 <script>
     const products = <?= json_encode($products) ?>;
