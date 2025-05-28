@@ -118,10 +118,11 @@ $products = $productStmt->fetchAll(PDO::FETCH_ASSOC);
                 </div>
             </div>
             <div id="payment-amount-section" style="display: none;">
-                <h4>Enter Payment Amount</h4>
-                <input type="number" id="payment-amount" placeholder="Enter amount" min="0" step="0.01">
-                <button onclick="confirmPayment()">Confirm Payment</button>
-            </div>
+    <div id="total-to-pay" style="font-weight: bold; margin-bottom: 1rem;">Total to Pay: ₱<span id="total-to-pay-value">0.00</span></div>
+    <h4>Enter Payment Amount</h4>
+    <input type="number" id="payment-amount" placeholder="Enter amount" min="0" step="0.01">
+    <button onclick="confirmPayment()">Confirm Payment</button>
+</div>
             <div class="modal-actions">
                 <button class="cancel-btn" onclick="closePaymentModal()">Cancel</button>
             </div>
