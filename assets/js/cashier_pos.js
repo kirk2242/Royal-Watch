@@ -451,7 +451,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Product image modal logic
 document.addEventListener('DOMContentLoaded', function() {
-    // ...existing code...
     barcodeInput.focus();
     filterProducts('all');
 
