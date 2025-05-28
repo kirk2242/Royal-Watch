@@ -397,7 +397,21 @@ function closeReceipt() {
 // Select payment method
 function selectPaymentMethod(method) {
     selectedPaymentMethod = method;
+    // Show payment amount section
     document.getElementById('payment-amount-section').style.display = 'block';
+
+    // Show total amount to be paid at the top
+    const totalAmount = parseFloat(document.getElementById('total-price').textContent);
+    let totalDisplay = document.getElementById('total-to-pay');
+    if (!totalDisplay) {
+        totalDisplay = document.createElement('div');
+        totalDisplay.id = 'total-to-pay';
+        totalDisplay.style.fontWeight = 'bold';
+        totalDisplay.style.marginBottom = '1rem';
+        const paymentSection = document.getElementById('payment-amount-section');
+        paymentSection.insertBefore(totalDisplay, paymentSection.firstChild);
+    }
+    totalDisplay.innerHTML = `Total to Pay: ₱${totalAmount.toFixed(2)}`;
 }
 
 // Confirm payment
