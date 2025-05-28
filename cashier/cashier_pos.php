@@ -88,7 +88,10 @@ $products = $productStmt->fetchAll(PDO::FETCH_ASSOC);
         <div class="cart-section">
             <h3><i class="fas fa-shopping-cart"></i> Shopping Cart</h3>
             <ul id="cart-items"></ul>
-
+            <div class="cart-total">
+                <span>Total:</span>
+                <span>₱<span id="total-price">0.00</span></span>
+            </div>
             <div class="cart-actions">
                 <button onclick="checkout()" class="checkout-btn"><i class="fas fa-cash-register"></i> Checkout</button>
                 <button onclick="clearCart()" class="clear-btn"><i class="fas fa-trash"></i> Clear</button>
@@ -115,7 +118,7 @@ $products = $productStmt->fetchAll(PDO::FETCH_ASSOC);
                 </div>
             </div>
             <div id="payment-amount-section" style="display: none;">
-    <div id="total-to-pay" style="font-weight: bold; margin-bottom: 1rem;">Total to Pay: ₱<span id="total-to-pay-value">0.00</span></div>
+    <div id="total-price" style="font-weight: bold; margin-bottom: 1rem;">Total to Pay: ₱<span id="total-price">0.00</span></div>
     <h4>Enter Payment Amount</h4>
     <input type="number" id="payment-amount" placeholder="Enter amount" min="0" step="0.01">
     <button onclick="confirmPayment()">Confirm Payment</button>
