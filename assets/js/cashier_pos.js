@@ -198,34 +198,63 @@ function updateCart() {
 // Update item quantity
 function updateItemQuantity(index, change) {
     const item = cart[index];
-    const newQuantity = item.quantity + change;
     const product = products.find(p => p.id === item.id);
+    if (!product) return;
+
+    const newQuantity = item.quantity + change;
+
     if (newQuantity <= 0) {
+        // Restore stock before removing
+        product.stock += item.quantity;
+        updateProductCardStock(product.id, product.stock);
         removeItem(index);
         return;
     }
-    if (newQuantity > product.stock) {
-        // Remove warning for not enough stock, just do nothing
+
+    if (change > 0 && newQuantity > product.stock + item.quantity) {
+        // Do not exceed available stock
         return;
     }
+
+    // Adjust stock
+    product.stock -= change;
+    updateProductCardStock(product.id, product.stock);
+
     item.quantity = newQuantity;
     updateCart();
 }
 
+
 // Remove item from cart
 function removeItem(index) {
+    const item = cart[index];
+    const product = products.find(p => p.id === item.id);
+    if (product) {
+        product.stock += item.quantity;
+        updateProductCardStock(product.id, product.stock);
+    }
     cart.splice(index, 1);
     updateCart();
 }
+
 
 // Clear cart
 function clearCart() {
     if (cart.length === 0) return;
     if (confirm('Are you sure you want to clear the cart?')) {
+        // Restore stock for all items
+        cart.forEach(item => {
+            const product = products.find(p => p.id === item.id);
+            if (product) {
+                product.stock += item.quantity;
+                updateProductCardStock(product.id, product.stock);
+            }
+        });
         cart = [];
         updateCart();
     }
 }
+
 
 // Checkout process
 function checkout() {
