@@ -443,12 +443,6 @@ function resetScannerInput() {
     barcodeInput.focus();
 }
 
-// Initialize
-document.addEventListener('DOMContentLoaded', function() {
-    barcodeInput.focus();
-    filterProducts('all');
-});
-
 // Product image modal logic
 document.addEventListener('DOMContentLoaded', function() {
     barcodeInput.focus();
