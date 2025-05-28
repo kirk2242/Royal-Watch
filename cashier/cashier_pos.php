@@ -70,9 +70,9 @@ $products = $productStmt->fetchAll(PDO::FETCH_ASSOC);
 
         <div class="product-section">
             <?php foreach ($products as $product): ?>
-                <div class="product-card" data-category="<?= htmlspecialchars($product['category']) ?>">
-                    <img src="<?= !empty($product['image']) ? '../uploads/' . $product['image'] : '../assets/images/no-image.jpg' ?>" alt="<?= htmlspecialchars($product['name']) ?>">
-                    <h4><?= htmlspecialchars($product['name']) ?></h4>
+                <div class="product-card" data-category="<?= htmlspecialchars($product['category']) ?>" data-image="<?= !empty($product['image']) ? '../uploads/' . $product['image'] : '../assets/images/no-image.jpg' ?>">
+    <img src="<?= !empty($product['image']) ? '../uploads/' . $product['image'] : '../assets/images/no-image.jpg' ?>" alt="<?= htmlspecialchars($product['name']) ?>">
+    <h4><?= htmlspecialchars($product['name']) ?></h4>
                     <p>₱<?= number_format($product['price'], 2) ?> | Stock: <?= $product['stock'] ?></p>
                     <p class="barcode-display">Barcode: <?= htmlspecialchars($product['barcode'] ?? 'N/A') ?></p>
                     <button 

@@ -448,3 +448,35 @@ document.addEventListener('DOMContentLoaded', function() {
     barcodeInput.focus();
     filterProducts('all');
 });
+
+// Product image modal logic
+document.addEventListener('DOMContentLoaded', function() {
+    // ...existing code...
+    barcodeInput.focus();
+    filterProducts('all');
+
+    // Product image modal logic
+    document.querySelectorAll('.product-card img').forEach(img => {
+        img.style.cursor = 'pointer';
+        img.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const card = img.closest('.product-card');
+            const imageUrl = card.getAttribute('data-image');
+            const modal = document.getElementById('product-image-modal');
+            const modalImg = document.getElementById('modal-product-image');
+            modalImg.src = imageUrl;
+            modal.style.display = 'flex';
+        });
+    });
+
+    document.getElementById('close-image-modal').onclick = function() {
+        document.getElementById('product-image-modal').style.display = 'none';
+    };
+
+    // Close modal when clicking outside the image
+    document.getElementById('product-image-modal').onclick = function(e) {
+        if (e.target === this) {
+            this.style.display = 'none';
+        }
+    };
+});
