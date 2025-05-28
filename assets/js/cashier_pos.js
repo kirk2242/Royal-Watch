@@ -255,7 +255,6 @@ function clearCart() {
     }
 }
 
-
 // Checkout process
 function checkout() {
     if (cart.length === 0) {
