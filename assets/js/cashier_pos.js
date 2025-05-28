@@ -193,6 +193,12 @@ function updateCart() {
         cartItems.appendChild(li);
     });
     document.getElementById('total-price').textContent = total.toFixed(2);
+
+    const totalToPayValue = document.getElementById('total-to-pay-value');
+    const paymentModal = document.getElementById('payment-modal');
+    if (totalToPayValue && paymentModal && paymentModal.style.display !== 'none') {
+        totalToPayValue.textContent = total.toFixed(2);
+    }
 }
 
 // Update item quantity
