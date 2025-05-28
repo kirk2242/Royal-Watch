@@ -284,7 +284,7 @@ button {
 /* Product Section */
 .product-section {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(max-height, 1fr));
+    grid-template-columns: repeat(3, 1fr); /* Show 3 items per row */
     gap: var(--spacing-md);
     overflow-y: auto;
     padding: var(--spacing-sm);
