@@ -195,8 +195,7 @@ function updateCart() {
     document.getElementById('total-price').textContent = total.toFixed(2);
 
     const totalToPayValue = document.getElementById('total-to-pay-value');
-    const paymentModal = document.getElementById('payment-modal');
-    if (totalToPayValue && paymentModal && paymentModal.style.display !== 'none') {
+    if (totalToPayValue) {
         totalToPayValue.textContent = total.toFixed(2);
     }
 }
