@@ -399,9 +399,12 @@ function selectPaymentMethod(method) {
     selectedPaymentMethod = method;
     document.getElementById('payment-amount-section').style.display = 'block';
 
-    // Update total to pay
+    // Update total to pay in the payment modal
     const totalAmount = parseFloat(document.getElementById('total-price').textContent);
-    document.getElementById('total-to-pay-value').textContent = totalAmount.toFixed(2);
+    const totalToPayValue = document.getElementById('total-to-pay-value');
+    if (totalToPayValue) {
+        totalToPayValue.textContent = totalAmount.toFixed(2);
+    }
 }
 
 // Confirm payment
