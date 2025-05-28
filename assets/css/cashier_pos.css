@@ -1,4 +1,3 @@
-
 /* Modern Cashier POS System - Main Stylesheet */
 :root {
     /* Color Palette */
@@ -302,8 +301,7 @@ button {
     transition: transform 0.2s, box-shadow 0.2s;
     height: auto !important;
     max-height: none;
-
-    }
+}
 
 .product-card:hover {
     transform: translateY(-5px);

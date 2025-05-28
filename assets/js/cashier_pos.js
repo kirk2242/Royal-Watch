@@ -1,179 +1,375 @@
 let cart = [];
+let total = 0;
+let selectedPaymentMethod = null;
 
-function addToCart(id, name, price, image, stock, quantity = 1) {
-    let existingItem = cart.find(item => item.id === id);
-
-    if (existingItem) {
-        if (existingItem.quantity + quantity > stock) {
-            alert("Not enough stock available.");
-            return;
+// Filter products by category
+function filterProducts(category) {
+    const productCards = document.querySelectorAll('.product-card');
+    const categoryItems = document.querySelectorAll('.category-section li');
+    
+    // Update active category
+    categoryItems.forEach(item => {
+        if (item.textContent.includes(category) || (category === 'all' && item.textContent.includes('All'))) {
+            item.classList.add('active');
+        } else {
+            item.classList.remove('active');
         }
-        existingItem.quantity += quantity;
+    });
+    
+    productCards.forEach(card => {
+        if (category === 'all' || card.dataset.category === category) {
+            card.style.display = 'flex';
+        } else {
+            card.style.display = 'none';
+        }
+    });
+}
+
+// Barcode scanner functionality
+let barcodeInput = document.getElementById('barcode');
+let barcodeTimeout;
+
+// Detect barcode scanner input (rapid entry with Enter key)
+barcodeInput.addEventListener('keydown', function(e) {
+    clearTimeout(barcodeTimeout);
+    if (e.key === 'Enter') {
+        e.preventDefault();
+        addToCartByBarcode();
     } else {
-        if (quantity > stock) {
-            alert("Not enough stock available.");
+        barcodeTimeout = setTimeout(() => {}, 100);
+    }
+});
+
+// Enhanced add to cart by barcode function
+function addToCartByBarcode() {
+    const barcode = barcodeInput.value.trim();
+    const quantityInput = document.getElementById('quantity');
+    let quantity = parseInt(quantityInput.value) || 1;
+    const feedbackElement = document.getElementById('barcode-feedback');
+    
+    if (!barcode) {
+        showFeedback('Please enter a barcode', 'error');
+        barcodeInput.focus();
+        return;
+    }
+    
+    // First check local products (from PHP array)
+    const product = products.find(p => p.barcode === barcode);
+    
+    if (product) {
+        if (product.stock <= 0) {
+            showFeedback('Product is out of stock', 'error');
             return;
         }
-        cart.push({ id, name, price: parseFloat(price), quantity, image, stock });
+        addToCart(product.id, product.name, product.price, 
+                 product.image ? '../uploads/' + product.image : '../assets/images/no-image.jpg', 
+                 product.stock, quantity);
+        resetScannerInput();
+        showFeedback(`${product.name} added to cart`, 'success');
+    } else {
+        checkBarcodeViaAJAX(barcode, quantity);
     }
+}
 
-    const productCard = document.querySelector(`.product-card[data-id="${id}"]`);
-    if (productCard) {
-        productCard.classList.add('clicked');
-        setTimeout(() => productCard.classList.remove('clicked'), 300);
+// Check barcode via AJAX if not found locally
+function checkBarcodeViaAJAX(barcode, quantity) {
+    showFeedback('Checking product...', 'info');
+    $.ajax({
+        url: '../cashier/check_barcode.php',
+        method: 'POST',
+        data: { barcode: barcode },
+        dataType: 'json',
+        success: function(response) {
+            if (response.success && response.product) {
+                const product = response.product;
+                if (product.stock <= 0) {
+                    showFeedback('Product is out of stock', 'error');
+                    return;
+                }
+                addToCart(product.id, product.name, product.price, 
+                         product.image ? '../uploads/' + product.image : '../assets/images/no-image.jpg', 
+                         product.stock, quantity);
+                resetScannerInput();
+                showFeedback(`${product.name} added to cart`, 'success');
+            } else {
+                showFeedback(response.message || 'Product not found', 'error');
+                barcodeInput.select();
+            }
+        },
+        error: function() {
+            showFeedback('Error checking product', 'error');
+        }
+    });
+}
+
+// Add product to cart
+function addToCart(id, name, price, image, stock, qty = 1) {
+    price = parseFloat(price);
+    if (qty <= 0) {
+        showFeedback('Quantity must be greater than 0', 'error');
+        return;
     }
-
-    console.log("Cart Updated:", cart); // Debugging
+    const existingItem = cart.find(item => item.id === id);
+    if (existingItem) {
+        if (existingItem.quantity + qty > stock) {
+            showFeedback('Not enough stock available', 'error');
+            return;
+        }
+        existingItem.quantity += qty;
+    } else {
+        if (qty > stock) {
+            showFeedback('Not enough stock available', 'error');
+            return;
+        }
+        cart.push({
+            id: id,
+            name: name,
+            price: price,
+            image: image,
+            quantity: qty
+        });
+    }
     updateCart();
 }
 
-function addToCartByBarcode() {
-    let barcode = document.getElementById("barcode").value;
-    let quantity = parseInt(document.getElementById("quantity").value);
-
-    if (!barcode || quantity < 1) {
-        alert("Enter a valid barcode and quantity.");
-        return;
-    }
-
-    console.log("Scanning barcode:", barcode); // Debugging
-
-    // Send AJAX request to get product details by barcode
-    fetch(`get_product.php?barcode=${barcode}`)
-        .then(response => {
-            console.log("Response status:", response.status); // Debugging
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            return response.json();
-        })
-        .then(product => {
-            console.log("Product response:", product); // Debugging
-
-            if (product.error) {
-                alert(product.error);
-            } else {
-                addToCart(product.id, product.name, product.price, product.image, product.stock, quantity);
-            }
-        })
-        .catch(error => {
-            console.error("Error fetching product:", error);
-            alert("Failed to fetch product. Please check the console for details.");
-        });
-}
-
+// Update cart display
 function updateCart() {
-    let cartItems = document.getElementById("cart-items");
-    let totalPrice = document.getElementById("total-price");
-    cartItems.innerHTML = "";
-
-    let total = 0;
-
-    cart.forEach(item => {
-        let li = document.createElement("li");
+    const cartItems = document.getElementById('cart-items');
+    cartItems.innerHTML = '';
+    total = 0;
+    cart.forEach((item, index) => {
+        const li = document.createElement('li');
+        li.className = 'cart-item';
+        const itemTotal = item.price * item.quantity;
+        total += itemTotal;
         li.innerHTML = `
-            <img src="../uploads/${item.image}" width="50"> 
-            ${item.name} - ₱${item.price.toFixed(2)} x ${item.quantity}
-            <button onclick="removeFromCart(${item.id})">Remove</button>
+            <img src="${item.image}" alt="${item.name}" class="cart-item-image">
+            <div class="cart-item-details">
+                <div class="cart-item-name">${item.name}</div>
+                <div class="cart-item-price">₱${item.price.toFixed(2)} x ${item.quantity}</div>
+                <div class="cart-item-quantity">
+                    <button class="quantity-btn" onclick="updateItemQuantity(${index}, -1)">-</button>
+                    <span class="quantity-value">${item.quantity}</span>
+                    <button class="quantity-btn" onclick="updateItemQuantity(${index}, 1)">+</button>
+                    <button class="cart-item-remove" onclick="removeItem(${index})"><i class="fas fa-trash"></i></button>
+                </div>
+            </div>
         `;
         cartItems.appendChild(li);
-        total += item.price * item.quantity;
     });
-
-    totalPrice.innerText = total.toFixed(2);
+    document.getElementById('total-price').textContent = total.toFixed(2);
 }
 
-function removeFromCart(id) {
-    cart = cart.filter(item => item.id !== id);
-    updateCart();
-}
-
-function clearCart() {
-    cart = [];
-    updateCart();
-}
-
-function checkout() {
-    if (cart.length === 0) {
-        alert("Your cart is empty.");
+// Update item quantity
+function updateItemQuantity(index, change) {
+    const item = cart[index];
+    const newQuantity = item.quantity + change;
+    const product = products.find(p => p.id === item.id);
+    if (newQuantity <= 0) {
+        removeItem(index);
         return;
     }
-
-    // Show payment modal
-    const paymentModal = document.getElementById("payment-modal");
-    paymentModal.style.display = "block";
+    if (newQuantity > product.stock) {
+        showFeedback('Not enough stock available', 'error');
+        return;
+    }
+    item.quantity = newQuantity;
+    updateCart();
 }
 
-function processPayment(paymentMethod) {
-    const paymentModal = document.getElementById("payment-modal");
+// Remove item from cart
+function removeItem(index) {
+    cart.splice(index, 1);
+    updateCart();
+}
 
-    fetch("../cashier/process_checkout.php", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ cart, payment_method: paymentMethod })
+// Clear cart
+function clearCart() {
+    if (cart.length === 0) return;
+    if (confirm('Are you sure you want to clear the cart?')) {
+        cart = [];
+        updateCart();
+    }
+}
+
+// Checkout process
+function checkout() {
+    if (cart.length === 0) {
+        showFeedback('Cart is empty', 'error');
+        return;
+    }
+    document.getElementById('payment-modal').style.display = 'flex';
+}
+
+// Close payment modal
+function closePaymentModal() {
+    document.getElementById('payment-modal').style.display = 'none';
+}
+
+// Process payment with confirmation
+function processPayment(method, paymentAmount) {
+    fetch('../cashier/process_checkout.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            cart: cart,
+            payment_method: method,
+            payment_amount: paymentAmount
+        })
     })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        return response.json();
-    })
+    .then(response => response.json())
     .then(data => {
         if (data.success) {
-            alert("Purchase successful!");
+            showReceipt(data.receipt);
             cart = [];
             updateCart();
-            showReceipt(data.receipt);
+            closePaymentModal();
         } else {
-            alert("Checkout failed: " + (data.message || "Unknown error"));
+            alert(data.message || 'Payment failed.');
         }
     })
     .catch(error => {
-        console.error("Error during checkout:", error);
-        alert("Failed to process checkout. Please check the console for details.");
-    })
-    .finally(() => {
-        paymentModal.style.display = "none";
+        console.error('Error:', error);
+        alert('An error occurred during payment.');
     });
 }
 
 function showReceipt(receipt) {
-    const receiptModal = document.getElementById("receipt-modal");
-    const receiptContent = document.getElementById("receipt-content");
-
-    receiptContent.innerHTML = `
-        <p><strong>Receipt ID:</strong> ${receipt.id}</p>
-        <p><strong>Date:</strong> ${receipt.date}</p>
-        <p><strong>Payment Method:</strong> ${receipt.payment_method}</p>
-        <p><strong>Total:</strong> ₱${receipt.total.toFixed(2)}</p>
-        <h4>Items:</h4>
-        <ul>
-            ${receipt.items.map(item => `
-                <li>${item.name} - ₱${item.price.toFixed(2)} x ${item.quantity}</li>
-            `).join('')}
-        </ul>
+    const receiptContent = document.getElementById('receipt-content');
+    const date = new Date(receipt.date).toLocaleString();
+    let receiptHTML = `
+        <div class="receipt-header">
+            <h4>Store Name</h4>
+            <p>123 Main Street, City</p>
+            <p>${date}</p>
+        </div>
+        <div class="receipt-items">
     `;
+    receipt.items.forEach(item => {
+        const itemTotal = item.price * item.quantity;
+        receiptHTML += `
+            <div class="receipt-item">
+                <span>${item.name} x${item.quantity}</span>
+                <span>₱${itemTotal.toFixed(2)}</span>
+            </div>
+        `;
+    });
+    receiptHTML += `
+        </div>
+        <div class="receipt-total">
+            <span>Total:</span>
+            <span>₱${receipt.total.toFixed(2)}</span>
+        </div>
+        <div class="receipt-footer">
+            <p>Payment Method: ${receipt.payment_method.toUpperCase()}</p>
+            <p>Payment Amount: ₱${receipt.payment_amount.toFixed(2)}</p>
+            <p>Change: ₱${receipt.change.toFixed(2)}</p>
+            <p>Thank you for your purchase!</p>
+        </div>
+    `;
+    receiptContent.innerHTML = receiptHTML;
+    document.getElementById('receipt-modal').style.display = 'flex';
+}
 
-    receiptModal.style.display = "block";
+function printReceipt() {
+    const receiptContent = document.getElementById('receipt-content').innerHTML;
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(`
+        <html>
+            <head>
+                <title>Receipt</title>
+                <style>
+                    body {
+                        font-family: 'Courier New', Courier, monospace;
+                        padding: 20px;
+                        max-width: 300px;
+                        margin: 0 auto;
+                    }
+                    .receipt-header {
+                        text-align: center;
+                        margin-bottom: 15px;
+                    }
+                    .receipt-items {
+                        margin: 15px 0;
+                    }
+                    .receipt-item {
+                        display: flex;
+                        justify-content: space-between;
+                        margin-bottom: 5px;
+                    }
+                    .receipt-total {
+                        border-top: 1px dashed #000;
+                        padding-top: 10px;
+                        margin-top: 10px;
+                        font-weight: bold;
+                        display: flex;
+                        justify-content: space-between;
+                    }
+                    .receipt-footer {
+                        text-align: center;
+                        margin-top: 15px;
+                        font-size: 14px;
+                    }
+                </style>
+            </head>
+            <body>
+                ${receiptContent}
+            </body>
+        </html>
+    `);
+    printWindow.document.close();
+    printWindow.focus();
+    printWindow.print();
+    printWindow.close();
+    showFeedback('Checkout successful!', 'success');
+    closeReceipt();
 }
 
 function closeReceipt() {
-    const receiptModal = document.getElementById("receipt-modal");
-    receiptModal.style.display = "none";
+    document.getElementById('receipt-modal').style.display = 'none';
 }
 
-function filterProducts(category) {
-    const productCards = document.querySelectorAll('.product-card');
-
-    productCards.forEach(card => {
-        const productCategory = card.getAttribute('data-category');
-
-        if (category === 'all' || productCategory === category) {
-            card.style.display = 'block'; // Show the product
-        } else {
-            card.style.display = 'none'; // Hide the product
-        }
-    });
-
-    console.log(`Filtered products by category: ${category}`); // Debugging
+// Select payment method
+function selectPaymentMethod(method) {
+    selectedPaymentMethod = method;
+    document.getElementById('payment-amount-section').style.display = 'block';
 }
+
+// Confirm payment
+function confirmPayment() {
+    const paymentAmount = parseFloat(document.getElementById('payment-amount').value);
+    const totalAmount = parseFloat(document.getElementById('total-price').textContent);
+    if (isNaN(paymentAmount) || paymentAmount < totalAmount) {
+        alert('Payment amount must be greater than or equal to the total amount.');
+        return;
+    }
+    processPayment(selectedPaymentMethod, paymentAmount);
+}
+
+// Helper function to show feedback messages
+function showFeedback(message, type) {
+    const feedbackElement = document.getElementById('barcode-feedback');
+    feedbackElement.textContent = message;
+    feedbackElement.className = `feedback-message ${type}`;
+    if (type === 'success') {
+        setTimeout(() => {
+            feedbackElement.textContent = '';
+            feedbackElement.className = 'feedback-message';
+        }, 2000);
+    }
+}
+
+// Reset scanner input after successful scan
+function resetScannerInput() {
+    barcodeInput.value = '';
+    document.getElementById('quantity').value = '1';
+    barcodeInput.focus();
+}
+
+// Initialize
+document.addEventListener('DOMContentLoaded', function() {
+    barcodeInput.focus();
+    filterProducts('all');
+});
