@@ -229,7 +229,6 @@ function updateItemQuantity(index, change) {
     updateCart();
 }
 
-
 // Remove item from cart
 function removeItem(index) {
     const item = cart[index];
@@ -241,7 +240,6 @@ function removeItem(index) {
     cart.splice(index, 1);
     updateCart();
 }
-
 
 // Clear cart
 function clearCart() {
@@ -443,7 +441,7 @@ function resetScannerInput() {
     barcodeInput.focus();
 }
 
-// Product image modal logic
+// Product image modal logic (only ONE DOMContentLoaded event!)
 document.addEventListener('DOMContentLoaded', function() {
     barcodeInput.focus();
     filterProducts('all');
