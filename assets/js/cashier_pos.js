@@ -120,13 +120,13 @@ function addToCart(id, name, price, image, stock, qty = 1) {
 
     if (existingItem) {
         if (existingItem.quantity + qty > product.stock) {
-            showFeedback('Not enough stock available', 'error');
+            // Remove warning for not enough stock, just do nothing
             return;
         }
         existingItem.quantity += qty;
     } else {
         if (qty > product.stock) {
-            showFeedback('Not enough stock available', 'error');
+            // Remove warning for not enough stock, just do nothing
             return;
         }
         cart.push({
@@ -205,7 +205,7 @@ function updateItemQuantity(index, change) {
         return;
     }
     if (newQuantity > product.stock) {
-        showFeedback('Not enough stock available', 'error');
+        // Remove warning for not enough stock, just do nothing
         return;
     }
     item.quantity = newQuantity;
