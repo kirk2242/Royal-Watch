@@ -110,14 +110,22 @@ function addToCart(id, name, price, image, stock, qty = 1) {
         return;
     }
     const existingItem = cart.find(item => item.id === id);
+    // Find the product in the products array
+    const product = products.find(p => p.id === id);
+
+    if (!product) {
+        showFeedback('Product not found', 'error');
+        return;
+    }
+
     if (existingItem) {
-        if (existingItem.quantity + qty > stock) {
+        if (existingItem.quantity + qty > product.stock) {
             showFeedback('Not enough stock available', 'error');
             return;
         }
         existingItem.quantity += qty;
     } else {
-        if (qty > stock) {
+        if (qty > product.stock) {
             showFeedback('Not enough stock available', 'error');
             return;
         }
@@ -129,7 +137,34 @@ function addToCart(id, name, price, image, stock, qty = 1) {
             quantity: qty
         });
     }
+
+    // Deduct stock from the product
+    product.stock -= qty;
+
+    updateProductCardStock(id, product.stock);
     updateCart();
+}
+
+// Update the stock display and button state on the product card
+function updateProductCardStock(id, newStock) {
+    const card = document.querySelector(`.product-card button[onclick^="addToCart(${id},"]`)?.closest('.product-card');
+    if (card) {
+        // Update stock text
+        const stockP = card.querySelector('p');
+        if (stockP) {
+            const priceText = stockP.textContent.split('|')[0].trim();
+            stockP.textContent = `${priceText} | Stock: ${newStock}`;
+        }
+        // Disable button if out of stock
+        const btn = card.querySelector('button');
+        if (btn) {
+            if (newStock <= 0) {
+                btn.disabled = true;
+                btn.classList.add('out-of-stock');
+                btn.innerHTML = '<i class="fas fa-ban"></i> Out of Stock';
+            }
+        }
+    }
 }
 
 // Update cart display
