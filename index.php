@@ -36,7 +36,7 @@ $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <!-- Hero Section -->
     <section class="hero">
         <div class="hero-content">
-            <h1>Timeless Elegance, Modern Precision</h1>
+            <h1>Timeless Luxury, Modern Precision</h1>
             <p>Discover our curated collection of luxury timepieces from the world's finest watchmakers. Each watch tells a story of craftsmanship and heritage.</p>
             <div class="hero-buttons">
                 <a href="#collections" class="cta-button">Explore Collections</a>
